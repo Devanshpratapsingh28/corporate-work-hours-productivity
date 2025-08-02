@@ -1,0 +1,42 @@
+stages:
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+      - src/preprocess.py
+      - data/raw/data.csv
+      - params.yaml
+    outs:
+      - data/processed/train.csv
+      - data/processed/test.csv
+      - artifacts/preprocessor.pkl
+    params:
+      - preprocess.input
+      - preprocess.output
+      - preprocess.artifact_path
+      - common.columns
+      - common.target
+
+  train:
+    cmd: python src/train.py
+    deps:
+      - src/train.py
+      - data/processed/train.csv
+      - params.yaml
+    outs:
+      - models/model.pkl
+    params:
+      - train.data_path
+      - train.model_path
+      - train.param_grid
+      - common.target
+
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+      - src/evaluate.py
+      - data/processed/test.csv
+      - models/model.pkl
+      - params.yaml
+    params:
+      - evaluate.data_path
+      - evaluate.model_path

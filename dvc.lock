@@ -1,0 +1,116 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: python src/preprocess.py
+    deps:
+    - path: data/raw/data.csv
+      hash: md5
+      md5: 03d4d04f04cab7ca9e836d484f57e363
+      size: 624588
+    - path: params.yaml
+      hash: md5
+      md5: b1b2244979b8778bf120aaa7c14780b9
+      size: 732
+    - path: src/preprocess.py
+      hash: md5
+      md5: 48dfa8dde3ac5e9016c37aae00c3e6ab
+      size: 2567
+    params:
+      params.yaml:
+        common.columns:
+        - Job_Level
+        - Years_at_Company
+        - Monthly_Hours_Worked
+        - Remote_Work
+        - Meetings_per_Week
+        - Tasks_Completed_Per_Day
+        - Overtime_Hours_Per_Week
+        - Work_Life_Balance
+        - Job_Satisfaction
+        - Productivity_Score
+        - Absences_Per_Year
+        common.target: productivity
+        preprocess.artifact_path: artifacts/preprocessor.pkl
+        preprocess.input: data/raw/data.csv
+        preprocess.output: data/processed
+    outs:
+    - path: artifacts/preprocessor.pkl
+      hash: md5
+      md5: e545238d1a9c98addc68031000a683ba
+      size: 4119
+    - path: data/processed/test.csv
+      hash: md5
+      md5: b37a2676ca1992ccbb194b333f67a8fe
+      size: 407709
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 401c583649b9cae36f448b8ffce265ed
+      size: 1628742
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 401c583649b9cae36f448b8ffce265ed
+      size: 1628742
+    - path: params.yaml
+      hash: md5
+      md5: b1b2244979b8778bf120aaa7c14780b9
+      size: 732
+    - path: src/train.py
+      hash: md5
+      md5: 8f9d3312e0bc9ed11a8261ea764160e6
+      size: 2678
+    params:
+      params.yaml:
+        common.target: productivity
+        train.data_path: data/processed/train.csv
+        train.model_path: models/model.pkl
+        train.param_grid:
+          n_estimators:
+          - 50
+          - 100
+          - 200
+          - 300
+          max_depth:
+          - 
+          - 5
+          - 10
+          min_samples_split:
+          - 2
+          - 5
+          - 10
+          - 50
+          min_samples_leaf:
+          - 1
+          - 2
+          - 5
+          - 20
+    outs:
+    - path: models/model.pkl
+      hash: md5
+      md5: a9cf3d4fdfd58ec18e88ec27aee14bfe
+      size: 1393585
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: b37a2676ca1992ccbb194b333f67a8fe
+      size: 407709
+    - path: models/model.pkl
+      hash: md5
+      md5: a9cf3d4fdfd58ec18e88ec27aee14bfe
+      size: 1393585
+    - path: params.yaml
+      hash: md5
+      md5: b1b2244979b8778bf120aaa7c14780b9
+      size: 732
+    - path: src/evaluate.py
+      hash: md5
+      md5: b7dc48f8a35c424b770aee4b3424da58
+      size: 833
+    params:
+      params.yaml:
+        evaluate.data_path: data/processed/test.csv
+        evaluate.model_path: models/model.pkl
